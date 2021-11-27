@@ -30,7 +30,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from .context_processors import microsoft
 from .utils import get_hook, get_scheme
-
+from .conf import config
 logger = logging.getLogger("django")
 
 # Microsoft side
@@ -42,7 +42,7 @@ def login_to_ms_redirect(request):
 def microsoft_logout(request):
     logout(request)
     redirect_url = request.GET.get('redirect_url')
-    _config_url = f"https://login.microsoftonline.com/{settings.MICROSOFT_AUTH_TENANT_ID}/oauth2/v2.0/logout?post_logout_redirect_uri={redirect_url}"
+    _config_url = f"https://login.microsoftonline.com/{config.MICROSOFT_AUTH_TENANT_ID}/oauth2/v2.0/logout?post_logout_redirect_uri={redirect_url}"
     return HttpResponseRedirect(_config_url) 
     
 class AuthenticateCallbackView(View):
@@ -195,11 +195,8 @@ class AuthenticateCallbackRedirect(AuthenticateCallbackView):
         redirects to app root on success. Returns HTTP 401 on error."""
 
         context = self.get_context_data(**request.POST.dict())
-
-        if "error" in context["message"]:
-            return HttpResponse(context["message"], status=400)
-        else:
-            return redirect(context.get("next", "/"))
+        print(context)
+        return redirect(context.get("next", "/"))
            
 # End microsoft side
 class BaseProvider(Provider):

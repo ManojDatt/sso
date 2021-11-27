@@ -1,4 +1,5 @@
 {% if user.is_authenticated %} <span class="navbar-text" id="session-name" data-key="{{user.id}}">
 Logged in as {{user.username}} </span>
+<a class="btn text-white" href="{% url 'sso-logout' %}">Sign Out</a>
 {% else %}
-<a class="btn text-white" href="{% url 'simple-sso-login' %}">Sign In</a> {% endif %}
+<a class="btn text-white" href="{% url 'sso-login' %}">Sign In</a> {% endif %}

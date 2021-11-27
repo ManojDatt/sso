@@ -1,6 +1,6 @@
 from copy import copy
 from urllib.parse import urlparse, urlunparse, urljoin, urlencode
-
+from django.conf import settings
 from django.urls import re_path
 from django.contrib.auth import login
 from django.contrib.auth.backends import ModelBackend
@@ -97,23 +97,16 @@ class Client:
         return cls(server_url, public_key, private_key)
 
     def get_request_token(self, redirect_to):
-        try:
-            url = reverse('simple-sso-request-token')
-        except NoReverseMatch:
-            # thisisfine
-            url = '/request-token/'
+        # Get request token
+        url = settings.SSO_SERVER_TOKEN_ENDPOINT
         return self.consumer.consume(url, {'redirect_to': redirect_to})['request_token']
 
     def get_user(self, access_token):
         data = {'access_token': access_token}
         if self.user_extra_data:
             data['extra_data'] = self.user_extra_data
-
-        try:
-            url = reverse('simple-sso-verify')
-        except NoReverseMatch:
-            # thisisfine
-            url = '/verify/'
+        # Verify retun result
+        url = settings.SSO_SERVER_VERIFY_TOKEN
         user_data = self.consumer.consume(url, data)
         user = self.build_user(user_data)
         return user

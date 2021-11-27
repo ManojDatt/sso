@@ -2,7 +2,7 @@ import json
 import logging
 import jwt
 import requests
-from django.contrib.sites.models import Site
+from .models import ServerSite as Site
 from django.core.cache import cache
 from django.urls import reverse
 from jwt.algorithms import RSAAlgorithm
@@ -44,9 +44,6 @@ class MicrosoftClient(OAuth2Session):
             **kwargs,
         )
 
-        if self.config.MICROSOFT_AUTH_PROXIES:
-            self.proxies = self.config.MICROSOFT_AUTH_PROXIES
-
     def _get_scopes(self):
         scope = " ".join(self.SCOPE_MICROSOFT)
         extra_scopes = self.config.MICROSOFT_AUTH_EXTRA_SCOPES
@@ -82,7 +79,6 @@ class MicrosoftClient(OAuth2Session):
 
             if response.ok:
                 config = response.json()
-                print(config)
                 cache.set(CACHE_KEY_OPENID, config, CACHE_TIMEOUT)
 
         return config
@@ -153,7 +149,6 @@ class MicrosoftClient(OAuth2Session):
 
     def fetch_token(self, **kwargs):
         """Fetchs OAuth2 Token with given kwargs"""
-        print(self.openid_config["token_endpoint"])
         return super().fetch_token(  # pragma: no cover
             self.openid_config["token_endpoint"],
             client_secret=self.config.MICROSOFT_AUTH_CLIENT_SECRET,
